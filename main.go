@@ -4,14 +4,15 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"log"
 	"tracking-server/di"
+	"tracking-server/infrastructure"
 	"tracking-server/shared/config"
 )
 
 func main() {
 	container := di.Container
 
-	err := container.Invoke(func(http *fiber.App, env *config.EnvConfig) error {
-		log.Println(env)
+	err := container.Invoke(func(http *fiber.App, env *config.EnvConfig, holder infrastructure.Holder) error {
+		infrastructure.Routes(http, holder)
 		err := http.Listen(":" + env.PORT)
 		if err != nil {
 			return err
