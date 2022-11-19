@@ -1,8 +1,10 @@
 package depedencies
 
 import (
-	"github.com/sirupsen/logrus"
+	"io"
 	"os"
+
+	"github.com/sirupsen/logrus"
 )
 
 func NewLogger() (*logrus.Logger, error) {
@@ -14,7 +16,8 @@ func NewLogger() (*logrus.Logger, error) {
 	}
 
 	log.SetFormatter(&logrus.JSONFormatter{})
-	log.SetOutput(file)
+	mw := io.MultiWriter(os.Stdout, file)
+	log.SetOutput(mw)
 
 	return log, nil
 }

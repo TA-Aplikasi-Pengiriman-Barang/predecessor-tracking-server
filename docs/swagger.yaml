@@ -1,0 +1,228 @@
+basePath: /
+definitions:
+  dto.CreateBusDto:
+    properties:
+      number:
+        type: integer
+      password:
+        type: string
+      plate:
+        type: string
+      route:
+        enum:
+        - RED
+        - BLUE
+        type: string
+      username:
+        type: string
+    required:
+    - number
+    - password
+    - plate
+    - route
+    - username
+    type: object
+  dto.CreateBusResponse:
+    properties:
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      number:
+        type: integer
+      plate:
+        type: string
+      route:
+        type: string
+      status:
+        type: string
+      username:
+        type: string
+    type: object
+  dto.DriverLoginDto:
+    properties:
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  dto.DriverLoginResponse:
+    properties:
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      number:
+        type: integer
+      plate:
+        type: string
+      route:
+        type: string
+      status:
+        type: string
+      token:
+        type: string
+    type: object
+  dto.EditBusDto:
+    properties:
+      isActive:
+        type: boolean
+      number:
+        type: integer
+      plate:
+        type: string
+      route:
+        enum:
+        - RED
+        - BLUE
+        type: string
+      status:
+        enum:
+        - EMPTY
+        - MODERATE
+        - FULL
+        type: string
+    type: object
+  dto.EditBusResponse:
+    properties:
+      id:
+        type: integer
+      isActive:
+        type: boolean
+      number:
+        type: integer
+      plate:
+        type: string
+      route:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.Status:
+    properties:
+      data: {}
+      name:
+        type: string
+      status:
+        type: string
+    type: object
+host: localhost:8000
+info:
+  contact: {}
+  description: API definition for bikun tracking specification
+  title: Bikun Tracking API
+  version: "1.0"
+paths:
+  /bus/:
+    post:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: CreateBus
+        in: body
+        name: CreateBusDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateBusDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CreateBusResponse'
+      summary: Create new bus entry
+      tags:
+      - Bus
+  /bus/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: Bus ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Delete bus
+      tags:
+      - Bus
+    put:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: Bus ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: token
+        in: header
+        name: auth
+        required: true
+        type: string
+      - description: EditBusDto
+        in: body
+        name: EditBusDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EditBusDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.EditBusResponse'
+      summary: Edit Bus
+      tags:
+      - Bus
+  /bus/login:
+    post:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: DriverLoginDto
+        in: body
+        name: DriverLoginDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.DriverLoginDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.DriverLoginResponse'
+      summary: Driver login
+      tags:
+      - Bus
+  /healthcheck:
+    get:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.Status'
+            type: array
+      summary: Check system status
+      tags:
+      - Healthcheck
+swagger: "2.0"

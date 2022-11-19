@@ -1,14 +1,17 @@
 package healthcheck
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"tracking-server/shared"
 	"tracking-server/shared/dto"
+
+	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type (
 	Service interface {
 		HttpHealthcheck(app *fiber.App) dto.Status
+		DatabaseHealthcheck(db *gorm.DB) dto.Status
 	}
 
 	service struct {
@@ -25,6 +28,26 @@ func (h *service) HttpHealthcheck(app *fiber.App) dto.Status {
 		Status: dto.OK,
 		Data:   data,
 	}
+}
+
+func (h *service) DatabaseHealthcheck(db *gorm.DB) dto.Status {
+	var (
+		status = dto.Status{Name: dto.DB, Status: dto.OK}
+	)
+
+	pgDB, _ := db.DB()
+	err := pgDB.Ping()
+
+	if err != nil {
+		h.shared.Logger.Errorf("error on db ping, %s", err.Error())
+		status.Status = dto.Error
+		status.Data = err.Error()
+		return status
+	}
+
+	status.Data = pgDB.Stats()
+
+	return status
 }
 
 func NewHealthcheckService(shared shared.Holder) Service {

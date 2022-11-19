@@ -1,9 +1,10 @@
 package healthcheck
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"tracking-server/interfaces"
 	"tracking-server/shared"
+
+	"github.com/gofiber/fiber/v2"
 )
 
 type Controller struct {
@@ -15,6 +16,15 @@ func (c *Controller) Routes(app *fiber.App) {
 	app.Get("/healthcheck", c.healthcheck)
 }
 
+// All godoc
+// @Tags Healthcheck
+// @Summary Check system status
+// @Description Put all mandatory parameter
+// @Accept  json
+// @Produce  json
+// @Success 200 {array} dto.Status
+// @Failure 200 {array} dto.Status
+// @Router /healthcheck [get]
 func (c *Controller) healthcheck(ctx *fiber.Ctx) error {
 	c.Shared.Logger.Println("checking server status")
 	data, _ := c.Interfaces.HealthcheckViewService.SystemHealthcheck()

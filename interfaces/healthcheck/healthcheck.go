@@ -21,8 +21,10 @@ func (v *viewService) SystemHealthcheck() (dto.HCStatus, error) {
 	status := make([]dto.Status, 0)
 
 	httpStatus := v.application.HealthcheckService.HttpHealthcheck(v.shared.Http)
-
 	status = append(status, httpStatus)
+
+	dbStatus := v.application.HealthcheckService.DatabaseHealthcheck(v.shared.DB)
+	status = append(status, dbStatus)
 
 	return dto.HCStatus{
 		Status: status,

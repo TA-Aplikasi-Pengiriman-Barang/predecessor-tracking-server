@@ -1,13 +1,19 @@
 package main
 
 import (
-	"github.com/gofiber/fiber/v2"
 	"log"
 	"tracking-server/di"
 	"tracking-server/infrastructure"
 	"tracking-server/shared/config"
+
+	"github.com/gofiber/fiber/v2"
 )
 
+// @title Bikun Tracking API
+// @version 1.0
+// @description API definition for bikun tracking specification
+// @host localhost:8000
+// @BasePath /
 func main() {
 	container := di.Container
 

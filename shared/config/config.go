@@ -6,7 +6,13 @@ import (
 )
 
 type EnvConfig struct {
-	PORT string `mapstructure:"PORT"`
+	PORT       string `mapstructure:"PORT"`
+	DBHost     string `mapstructure:"DB_HOST"`
+	DBUser     string `mapstructure:"DB_USER"`
+	DBPassword string `mapstructure:"DB_PASSWORD"`
+	DBName     string `mapstructure:"DB_NAME"`
+	DBPort     string `mapstructure:"DB_PORT"`
+	JWTSecret  string `mapstructure:"JWT_SECRET"`
 }
 
 func NewEnvConfig(log *logrus.Logger) (*EnvConfig, error) {

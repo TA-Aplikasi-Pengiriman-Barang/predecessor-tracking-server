@@ -1,12 +1,14 @@
 package shared
 
 import (
+	"tracking-server/shared/config"
+	"tracking-server/shared/depedencies"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"go.uber.org/dig"
-	"tracking-server/shared/config"
-	"tracking-server/shared/depedencies"
+	"gorm.io/gorm"
 )
 
 type Holder struct {
@@ -14,6 +16,7 @@ type Holder struct {
 	Logger *logrus.Logger
 	Env    *config.EnvConfig
 	Http   *fiber.App
+	DB     *gorm.DB
 }
 
 func Register(container *dig.Container) error {
@@ -27,6 +30,10 @@ func Register(container *dig.Container) error {
 
 	if err := container.Provide(depedencies.NewHttp); err != nil {
 		return errors.Wrap(err, "failed to provide http")
+	}
+
+	if err := container.Provide(depedencies.NewDatabase); err != nil {
+		return errors.Wrap(err, "failed to provide database")
 	}
 
 	return nil
