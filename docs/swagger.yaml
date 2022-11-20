@@ -39,6 +39,27 @@ definitions:
       username:
         type: string
     type: object
+  dto.CreateNewsDto:
+    properties:
+      detail:
+        type: string
+      title:
+        type: string
+    required:
+    - detail
+    - title
+    type: object
+  dto.CreateNewsResponse:
+    properties:
+      createdAt:
+        type: string
+      detail:
+        type: string
+      id:
+        type: integer
+      title:
+        type: string
+    type: object
   dto.DriverLoginDto:
     properties:
       password:
@@ -99,6 +120,31 @@ definitions:
       route:
         type: string
       status:
+        type: string
+    type: object
+  dto.EditNewsDto:
+    properties:
+      detail:
+        type: string
+      title:
+        type: string
+    type: object
+  dto.GetAllNewsResponse:
+    properties:
+      news:
+        items:
+          $ref: '#/definitions/dto.News'
+        type: array
+    type: object
+  dto.News:
+    properties:
+      createdAt:
+        type: string
+      detail:
+        type: string
+      id:
+        type: integer
+      title:
         type: string
     type: object
   dto.Status:
@@ -225,4 +271,103 @@ paths:
       summary: Check system status
       tags:
       - Healthcheck
+  /news/:
+    get:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetAllNewsResponse'
+      summary: Get all news
+      tags:
+      - News
+    post:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: CreateNews
+        in: body
+        name: CreateNewsDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateNewsDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.CreateBusResponse'
+      summary: Create new news
+      tags:
+      - News
+  /news/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses: {}
+      summary: Delete News
+      tags:
+      - News
+    get:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.News'
+      summary: Get news detail
+      tags:
+      - News
+    put:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: News ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: EditNewsDto
+        in: body
+        name: EditNewsDto
+        required: true
+        schema:
+          $ref: '#/definitions/dto.EditNewsDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.News'
+      summary: Edit news
+      tags:
+      - News
 swagger: "2.0"

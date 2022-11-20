@@ -99,7 +99,7 @@ func (v *viewService) DeleteBus(id string) error {
 
 func (v *viewService) EditBus(data dto.EditBusDto, id string, token string) (dto.EditBusResponse, error) {
 	var (
-		bus = &dto.Bus{}
+		bus      = &dto.Bus{}
 		response dto.EditBusResponse
 	)
 
@@ -109,7 +109,6 @@ func (v *viewService) EditBus(data dto.EditBusDto, id string, token string) (dto
 		v.shared.Logger.Errorf("error when checking username, err: %s", err.Error())
 		return response, err
 	}
-	
 
 	err = v.application.BusService.FindById(id, bus)
 	if err != nil {

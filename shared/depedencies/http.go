@@ -8,7 +8,6 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/monitor"
-	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/gofiber/swagger"
 	"github.com/sirupsen/logrus"
 )
@@ -19,10 +18,8 @@ func NewHttp(log *logrus.Logger) *fiber.App {
 		JSONDecoder: json.Unmarshal,
 	})
 
-	app.Use(requestid.New())
-
 	app.Use(logger.New(logger.Config{
-		Format: "[${time}]:[${ip} - ${requestid}] ${status} - ${latency} ${method} ${path}\n",
+		Format: "[${time}]:[${ip}] ${status} - ${latency} ${method} ${path}\n",
 	}))
 
 	app.Use(cors.New(cors.ConfigDefault))

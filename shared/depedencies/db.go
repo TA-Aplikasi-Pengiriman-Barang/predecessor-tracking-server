@@ -39,6 +39,7 @@ func NewDatabase(env *config.EnvConfig, log *logrus.Logger) *gorm.DB {
 func migrateSchema(db *gorm.DB, log *logrus.Logger) {
 	err := db.AutoMigrate(
 		&dto.Bus{},
+		&dto.News{},
 	)
 
 	if err != nil {

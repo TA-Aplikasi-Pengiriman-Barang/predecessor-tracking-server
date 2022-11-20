@@ -132,11 +132,11 @@ func (b *Bus) FillBusEdit(data EditBusDto) {
 
 func (b *Bus) ToEditBusResponnse() EditBusResponse {
 	return EditBusResponse{
-		ID: b.ID,
-		Number: b.Number,
-		Plate: b.Plate,
-		Status: b.Status,
-		Route: b.Route,
+		ID:       b.ID,
+		Number:   b.Number,
+		Plate:    b.Plate,
+		Status:   b.Status,
+		Route:    b.Route,
 		IsActive: b.IsActive,
 	}
 }
