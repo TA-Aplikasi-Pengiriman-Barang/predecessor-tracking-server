@@ -33,6 +33,8 @@ func NewDatabase(env *config.EnvConfig, log *logrus.Logger) *gorm.DB {
 
 	migrateSchema(db, log)
 
+	seedDatabase(db)
+
 	return db
 }
 
@@ -40,6 +42,7 @@ func migrateSchema(db *gorm.DB, log *logrus.Logger) {
 	err := db.AutoMigrate(
 		&dto.Bus{},
 		&dto.News{},
+		&dto.Terminal{},
 	)
 
 	if err != nil {
@@ -47,6 +50,11 @@ func migrateSchema(db *gorm.DB, log *logrus.Logger) {
 	}
 
 	log.Infoln("database migrated")
+}
+
+func seedDatabase(db *gorm.DB) {
+	terminal := dto.Terminal{}
+	db.Create(terminal.Seeder())
 }
 
 func setConnectionConfiguration(db *gorm.DB) {

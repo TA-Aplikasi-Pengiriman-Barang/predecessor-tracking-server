@@ -1,0 +1,33 @@
+version: "3.8"
+networks:
+  tracking:
+services:
+  app:
+    build:
+      context: .
+      target: Production
+    volumes:
+      - ./logger.log:/app/logger.log
+    ports:
+      - 8000:8000
+    restart: always
+    depends_on:
+      - db
+    networks:
+      - tracking
+  db:
+    image: postgres:13.3-alpine
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    restart: always
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+    ports:
+      - "5433:5432"
+    networks:
+      - tracking
+volumes:
+  db-data:
+    driver: local
