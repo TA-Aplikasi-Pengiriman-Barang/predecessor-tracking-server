@@ -50,6 +50,38 @@ const docTemplate = `{
                 }
             }
         },
+        "/bus/info/{id}": {
+            "post": {
+                "description": "Put all mandatory parameter",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Bus"
+                ],
+                "summary": "Get bus estimation",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Terminal ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.BusInfoResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/bus/login": {
             "post": {
                 "description": "Put all mandatory parameter",
@@ -432,6 +464,40 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "dto.BusInfo": {
+            "type": "object",
+            "properties": {
+                "estimate": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "number": {
+                    "type": "integer"
+                },
+                "plate": {
+                    "type": "string"
+                },
+                "route": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.BusInfoResponse": {
+            "type": "object",
+            "properties": {
+                "bus": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.BusInfo"
+                    }
+                }
+            }
+        },
         "dto.CreateBusDto": {
             "type": "object",
             "required": [

@@ -8,7 +8,10 @@ import (
 	"tracking-server/shared/common"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 )
+
+var users = make([]*dto.Connection, 0)
 
 type Controller struct {
 	Interfaces interfaces.Holder
@@ -21,6 +24,15 @@ func (c *Controller) Routes(app *fiber.App) {
 	bus.Post("/login", c.login)
 	bus.Delete("/:id", c.delete)
 	bus.Put("/:id", c.edit)
+	bus.Post("/info/:id", c.busInfo)
+
+	bus.Use("/stream", func(ctx *fiber.Ctx) error {
+		if websocket.IsWebSocketUpgrade(ctx) {
+			return ctx.Next()
+		}
+		return fiber.ErrUpgradeRequired
+	})
+	bus.Get("/stream", websocket.New(c.trackBusLocation))
 }
 
 // All godoc
@@ -142,6 +154,97 @@ func (c *Controller) edit(ctx *fiber.Ctx) error {
 
 	return common.DoCommonSuccessResponse(ctx, response)
 }
+
+// All godoc
+// @Tags Bus
+// @Summary Get bus estimation
+// @Description Put all mandatory parameter
+// @Param id path string true "Terminal ID"
+// @Accept  json
+// @Produce  json
+// @Success 200 {object} dto.BusInfoResponse
+// @Failure 200 {object} dto.BusInfoResponse
+// @Router /bus/info/{id} [post]
+func (c *Controller) busInfo(ctx *fiber.Ctx) error {
+	var (
+		response dto.BusInfoResponse
+	)
+
+	id := ctx.Params("id")
+
+	c.Shared.Logger.Infof("bus info, data: %s", id)
+
+	response, err := c.Interfaces.BusViewService.BusInfo(id)
+	if err != nil {
+		return common.DoCommonErrorResponse(ctx, err)
+	}
+
+	return common.DoCommonSuccessResponse(ctx, response)
+}
+
+func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
+	defer func() {
+		for i := 0; i < len(users); i++ {
+			if users[i].Socket == ctx {
+				users[i].Socket.Close()
+				users = append(users[:i], users[i+1:]...)
+			}
+		}
+	}()
+
+	query := dto.BusLocationQuery{
+		Type:  ctx.Query("type", string(dto.CLIENT)),
+		Token: ctx.Query("token", ""),
+	}
+
+	c.Shared.Logger.Infof("stream bus location, query: %s", query)
+
+	if query.Type == string(dto.CLIENT) {
+		users = append(users, &dto.Connection{
+			Socket: ctx,
+		})
+	}
+
+	c.Shared.Logger.Infof("current user pool: %d", len(users))
+
+	for {
+		if query.Type == string(dto.DRIVER) {
+			data, err := c.Interfaces.BusViewService.TrackBusLocation(query, ctx)
+			if err != nil {
+				return
+			}
+			ctx.WriteJSON(data)
+		} else {
+			busLocation := c.Interfaces.BusViewService.StreamBusLocation()
+			for _, u := range users {
+				u.Send(busLocation)
+			}
+		}
+	}
+}
+
+// func (c *Controller) streamBusLocation(ctx *websocket.Conn) {
+// 	var (
+// 		msg []byte
+// 		err error
+// 	)
+// 	defer func() {
+// 		ctx.Close()
+// 	}()
+
+// 	for {
+// 		if _, msg, err = ctx.ReadMessage(); err != nil {
+// 			return
+// 		}
+
+// 		if string(msg) == "TRACK" {
+// 			data := c.Interfaces.BusViewService.StreamBusLocation()
+// 			if err = ctx.WriteJSON(data); err != nil {
+// 				return
+// 			}
+// 		}
+// 	}
+// }
 
 func NewController(interfaces interfaces.Holder, shared shared.Holder) Controller {
 	return Controller{

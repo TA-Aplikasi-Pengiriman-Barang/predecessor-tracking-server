@@ -1,5 +1,27 @@
 basePath: /
 definitions:
+  dto.BusInfo:
+    properties:
+      estimate:
+        type: integer
+      id:
+        type: integer
+      number:
+        type: integer
+      plate:
+        type: string
+      route:
+        type: string
+      status:
+        type: string
+    type: object
+  dto.BusInfoResponse:
+    properties:
+      bus:
+        items:
+          $ref: '#/definitions/dto.BusInfo'
+        type: array
+    type: object
   dto.CreateBusDto:
     properties:
       number:
@@ -284,6 +306,27 @@ paths:
           schema:
             $ref: '#/definitions/dto.EditBusResponse'
       summary: Edit Bus
+      tags:
+      - Bus
+  /bus/info/{id}:
+    post:
+      consumes:
+      - application/json
+      description: Put all mandatory parameter
+      parameters:
+      - description: Terminal ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.BusInfoResponse'
+      summary: Get bus estimation
       tags:
       - Bus
   /bus/login:

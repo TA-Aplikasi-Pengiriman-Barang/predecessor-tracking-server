@@ -10,8 +10,8 @@ type (
 		Name        string  `gorm:"colum:name;uniqueIndex:route_name_pair"`
 		Route       Route   `gorm:"column:route;uniqueIndex:route_name_pair"`
 		PlaceAround string  `gorm:"column:place_around"`
-		Long        float64 `gorm:"longitude"`
-		Lat         float64 `gorm:"latitude"`
+		Long        float64 `gorm:"column:longitude"`
+		Lat         float64 `gorm:"column:latitude"`
 	}
 
 	VisitedTerminal struct {

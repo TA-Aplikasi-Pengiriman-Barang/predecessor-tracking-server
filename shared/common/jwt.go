@@ -33,8 +33,12 @@ func parseJWT(tokenString string, env *config.EnvConfig) (*jwt.Token, error) {
 	return token, nil
 }
 
-func ExtractTokenData(tokenString string, env *config.EnvConfig) string {
-	token, _ := parseJWT(tokenString, env)
+func ExtractTokenData(tokenString string, env *config.EnvConfig) (string, error) {
+	token, err := parseJWT(tokenString, env)
+	if err != nil {
+		return "", err
+	}
+
 	claims, _ := token.Claims.(jwt.MapClaims)
-	return claims["iss"].(string)
+	return claims["iss"].(string), nil
 }
