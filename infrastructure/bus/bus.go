@@ -1,6 +1,7 @@
 package bus
 
 import (
+	"time"
 	"tracking-server/interfaces"
 	"tracking-server/shared"
 	"tracking-server/shared/dto"
@@ -219,32 +220,10 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 			for _, u := range users {
 				u.Send(busLocation)
 			}
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
-
-// func (c *Controller) streamBusLocation(ctx *websocket.Conn) {
-// 	var (
-// 		msg []byte
-// 		err error
-// 	)
-// 	defer func() {
-// 		ctx.Close()
-// 	}()
-
-// 	for {
-// 		if _, msg, err = ctx.ReadMessage(); err != nil {
-// 			return
-// 		}
-
-// 		if string(msg) == "TRACK" {
-// 			data := c.Interfaces.BusViewService.StreamBusLocation()
-// 			if err = ctx.WriteJSON(data); err != nil {
-// 				return
-// 			}
-// 		}
-// 	}
-// }
 
 func NewController(interfaces interfaces.Holder, shared shared.Holder) Controller {
 	return Controller{
