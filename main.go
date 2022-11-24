@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"tracking-server/di"
+	"tracking-server/docs"
 	"tracking-server/infrastructure"
 	"tracking-server/shared/config"
 
@@ -19,6 +20,9 @@ func main() {
 
 	err := container.Invoke(func(http *fiber.App, env *config.EnvConfig, holder infrastructure.Holder) error {
 		infrastructure.Routes(http, holder)
+		if env.ENV == "PROD" {
+			docs.SwaggerInfo.Host = "api.bikunku.com"
+		}
 		err := http.Listen(":" + env.PORT)
 		if err != nil {
 			return err
