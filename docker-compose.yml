@@ -6,8 +6,6 @@ services:
     build:
       context: .
       target: Production
-    volumes:
-      - ./logger.log:/app/logger.log
     ports:
       - 8000:8000
     restart: always
