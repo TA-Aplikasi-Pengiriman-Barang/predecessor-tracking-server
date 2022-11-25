@@ -12,8 +12,6 @@ import (
 	"github.com/gofiber/websocket/v2"
 )
 
-var users = make([]*dto.Connection, 0)
-
 type Controller struct {
 	Interfaces interfaces.Holder
 	Shared     shared.Holder
@@ -185,12 +183,7 @@ func (c *Controller) busInfo(ctx *fiber.Ctx) error {
 
 func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 	defer func() {
-		for i := 0; i < len(users); i++ {
-			if users[i].Socket == ctx {
-				users[i].Socket.Close()
-				users = append(users[:i], users[i+1:]...)
-			}
-		}
+		ctx.Close()
 	}()
 
 	query := dto.BusLocationQuery{
@@ -199,14 +192,6 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 	}
 
 	c.Shared.Logger.Infof("stream bus location, query: %s", query)
-
-	if query.Type == string(dto.CLIENT) {
-		users = append(users, &dto.Connection{
-			Socket: ctx,
-		})
-	}
-
-	c.Shared.Logger.Infof("current user pool: %d", len(users))
 
 	for {
 		if query.Type == string(dto.DRIVER) {
@@ -217,10 +202,8 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 			ctx.WriteJSON(data)
 		} else {
 			busLocation := c.Interfaces.BusViewService.StreamBusLocation()
-			for _, u := range users {
-				u.Send(busLocation)
-			}
-			time.Sleep(1 * time.Second)
+			ctx.WriteJSON(busLocation)
+			time.Sleep(2 * time.Second)
 		}
 	}
 }

@@ -175,11 +175,6 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		v.shared.Logger.Infof("insert bus location, data: %s", location)
 	}()
 
-	if err := c.WriteJSON(data); err != nil {
-		v.shared.Logger.Errorf("error when writing message, err: %s", err.Error())
-		return data, err
-	}
-
 	return data, nil
 }
 
