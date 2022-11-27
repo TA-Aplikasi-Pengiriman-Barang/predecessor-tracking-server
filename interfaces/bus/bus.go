@@ -19,7 +19,7 @@ type (
 		DeleteBus(id string) error
 		EditBus(data dto.EditBusDto, id string, token string) (dto.EditBusResponse, error)
 		TrackBusLocation(query dto.BusLocationQuery, c *websocket.Conn) (dto.BusLocationMessage, error)
-		StreamBusLocation() []dto.TrackLocationResponse
+		StreamBusLocation(query dto.BusLocationQuery) []dto.TrackLocationResponse
 		BusInfo(id string) (dto.BusInfoResponse, error)
 	}
 	viewService struct {
@@ -145,6 +145,15 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		bus  = dto.Bus{}
 	)
 
+	if err := c.ReadJSON(&data); err != nil {
+		v.shared.Logger.Errorf("error when receiving websocket message, err: %s", err.Error())
+		return data, err
+	}
+
+	if query.Experimental == "true" {
+		return v.storeBusLocationExperimental(data, query)
+	}
+
 	username, err := common.ExtractTokenData(query.Token, v.shared.Env)
 	if err != nil {
 		v.shared.Logger.Errorf("error when parsing jwt, err: %s", err.Error())
@@ -153,11 +162,6 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 
 	err = v.application.BusService.FindByUsername(username, &bus)
 	if err != nil {
-		return data, err
-	}
-
-	if err := c.ReadJSON(&data); err != nil {
-		v.shared.Logger.Errorf("error when receiving websocket message, err: %s", err.Error())
 		return data, err
 	}
 
@@ -178,7 +182,59 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 	return data, nil
 }
 
-func (v *viewService) StreamBusLocation() []dto.TrackLocationResponse {
+func (v *viewService) StreamBusLocation(query dto.BusLocationQuery) []dto.TrackLocationResponse {
+	var (
+		response []dto.TrackLocationResponse
+	)
+
+	if query.Experimental == "true" {
+		return v.streamBusLocationExperimental()
+	}
+
+	response = v.getBusLatestLocation()
+
+	return response
+}
+
+func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
+	var (
+		res               dto.BusInfoResponse
+		terminal          = dto.Terminal{}
+		busLatestLocation []dto.TrackLocationResponse
+		busInfo           = make([]dto.BusInfo, 0)
+	)
+
+	err := v.application.TerminalService.GetById(id, &terminal)
+	if err != nil {
+		v.shared.Logger.Errorf("error when finding all terminal by id, err: %s", err.Error())
+		return res, err
+	}
+
+	busLatestLocation = v.getBusLatestLocation()
+
+	for _, b := range busLatestLocation {
+		distance := common.Distance(b.Lat, b.Long, terminal.Lat, terminal.Long)
+		estimate := int(distance/b.Speed) * 3600
+		busInfo = append(busInfo, dto.BusInfo{
+			ID:       b.ID,
+			Number:   b.Number,
+			Plate:    b.Plate,
+			Status:   b.Status,
+			Route:    b.Route,
+			Estimate: estimate,
+		})
+	}
+
+	sort.Slice(busInfo, func(i, j int) bool {
+		return busInfo[i].Estimate < busInfo[j].Estimate
+	})
+
+	res.Bus = busInfo
+
+	return res, nil
+}
+
+func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 	var (
 		bus      = []dto.Bus{}
 		response = make([]dto.TrackLocationResponse, 0)
@@ -216,42 +272,24 @@ func (v *viewService) StreamBusLocation() []dto.TrackLocationResponse {
 	return response
 }
 
-func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
-	var (
-		res               dto.BusInfoResponse
-		terminal          = dto.Terminal{}
-		busLatestLocation []dto.TrackLocationResponse
-		busInfo           = make([]dto.BusInfo, 0)
-	)
+func (v *viewService) storeBusLocationExperimental(data dto.BusLocationMessage, query dto.BusLocationQuery) (dto.BusLocationMessage, error) {
+	dto.ExperimentalBusLocation.Store(query.ExperminetalID, data)
+	return data, nil
+}
 
-	err := v.application.TerminalService.GetById(id, &terminal)
-	if err != nil {
-		v.shared.Logger.Errorf("error when finding all terminal by id, err: %s", err.Error())
-		return res, err
-	}
-
-	busLatestLocation = v.StreamBusLocation()
-
-	for _, b := range busLatestLocation {
-		distance := common.Distance(b.Lat, b.Long, terminal.Lat, terminal.Long)
-		estimate := int(distance/b.Speed) * 3600
-		busInfo = append(busInfo, dto.BusInfo{
-			ID:       b.ID,
-			Number:   b.Number,
-			Plate:    b.Plate,
-			Status:   b.Status,
-			Route:    b.Route,
-			Estimate: estimate,
+func (v *viewService) streamBusLocationExperimental() []dto.TrackLocationResponse {
+	var res = make([]dto.TrackLocationResponse, 0)
+	dto.ExperimentalBusLocation.Range(func(key, value interface{}) bool {
+		location := value.(dto.BusLocationMessage)
+		res = append(res, dto.TrackLocationResponse{
+			Long:    location.Long,
+			Lat:     location.Lat,
+			Speed:   location.Speed,
+			Heading: location.Heading,
 		})
-	}
-
-	sort.Slice(busInfo, func(i, j int) bool {
-		return busInfo[i].Estimate < busInfo[j].Estimate
+		return true
 	})
-
-	res.Bus = busInfo
-
-	return res, nil
+	return res
 }
 
 func NewViewService(application application.Holder, shared shared.Holder) ViewService {

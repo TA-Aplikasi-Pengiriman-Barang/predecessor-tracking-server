@@ -7,6 +7,10 @@ import (
 	"github.com/gofiber/websocket/v2"
 )
 
+var (
+	ExperimentalBusLocation sync.Map
+)
+
 const (
 	// Crowded Status
 	EMPTY    BusStatus = "EMPTY"
@@ -107,8 +111,10 @@ type (
 	}
 
 	BusLocationQuery struct {
-		Type  string
-		Token string
+		Type           string
+		Token          string
+		Experimental   string
+		ExperminetalID string
 	}
 
 	BusLocationMessage struct {

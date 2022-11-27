@@ -24,5 +24,5 @@ func Distance(lat1 float64, lng1 float64, lat2 float64, lng2 float64) float64 {
 	dist = dist * 60 * 1.1515
 	dist = dist * 1.609344
 
-	return dist
+	return math.Round(dist*100) / 100
 }

@@ -187,8 +187,10 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 	}()
 
 	query := dto.BusLocationQuery{
-		Type:  ctx.Query("type", string(dto.CLIENT)),
-		Token: ctx.Query("token", ""),
+		Type:           ctx.Query("type", string(dto.CLIENT)),
+		Token:          ctx.Query("token", ""),
+		Experimental:   ctx.Query("experimental", c.Shared.Env.Experimental),
+		ExperminetalID: ctx.Query("experimentalId", ""),
 	}
 
 	c.Shared.Logger.Infof("stream bus location, query: %s", query)
@@ -201,7 +203,7 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 			}
 			ctx.WriteJSON(data)
 		} else {
-			busLocation := c.Interfaces.BusViewService.StreamBusLocation()
+			busLocation := c.Interfaces.BusViewService.StreamBusLocation(query)
 			ctx.WriteJSON(busLocation)
 			time.Sleep(2 * time.Second)
 		}
