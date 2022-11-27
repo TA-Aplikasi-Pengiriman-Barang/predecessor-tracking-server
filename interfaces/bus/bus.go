@@ -2,6 +2,7 @@ package bus
 
 import (
 	"sort"
+	"strconv"
 	"time"
 	"tracking-server/application"
 	"tracking-server/shared"
@@ -247,6 +248,10 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 	}
 
 	for _, d := range bus {
+		if !d.IsActive {
+			continue
+		}
+
 		parsedData := dto.TrackLocationResponse{
 			ID:       d.ID,
 			Number:   d.Number,
@@ -281,7 +286,10 @@ func (v *viewService) streamBusLocationExperimental() []dto.TrackLocationRespons
 	var res = make([]dto.TrackLocationResponse, 0)
 	dto.ExperimentalBusLocation.Range(func(key, value interface{}) bool {
 		location := value.(dto.BusLocationMessage)
+		number, _ := strconv.Atoi(key.(string))
 		res = append(res, dto.TrackLocationResponse{
+			Number:  number,
+			Plate:   "P 4 L",
 			Long:    location.Long,
 			Lat:     location.Lat,
 			Speed:   location.Speed,
