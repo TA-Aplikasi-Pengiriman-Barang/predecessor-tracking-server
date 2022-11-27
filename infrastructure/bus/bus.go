@@ -205,7 +205,7 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 		} else {
 			busLocation := c.Interfaces.BusViewService.StreamBusLocation(query)
 			ctx.WriteJSON(busLocation)
-			time.Sleep(2 * time.Second)
+			time.Sleep(1 * time.Second)
 		}
 	}
 }
