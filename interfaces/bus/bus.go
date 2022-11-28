@@ -223,7 +223,7 @@ func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
 			Plate:    b.Plate,
 			Status:   b.Status,
 			Route:    b.Route,
-			Estimate: 0,
+			Estimate: int(estimate),
 		})
 	}
 
