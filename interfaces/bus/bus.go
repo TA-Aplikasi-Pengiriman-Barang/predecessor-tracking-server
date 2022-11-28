@@ -151,9 +151,9 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		return data, err
 	}
 
-	// if query.Experimental == "true" {
-	// 	return v.storeBusLocationExperimental(data, query)
-	// }
+	if query.Experimental == "true" {
+		return v.storeBusLocationExperimental(data, query)
+	}
 
 	username, err := common.ExtractTokenData(query.Token, v.shared.Env)
 	if err != nil {
