@@ -222,7 +222,7 @@ func (b *Bus) ToEditBusResponnse() EditBusResponse {
 }
 
 func (t *TrackLocationResponse) GetBusSpeed() float64 {
-	if t.Speed < 0 {
+	if t.Speed <= 0.0 {
 		return DEFAULTBUSSPEED
 	}
 	return t.Speed
