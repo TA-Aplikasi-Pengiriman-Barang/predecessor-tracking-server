@@ -215,7 +215,7 @@ func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
 
 	for _, b := range busLatestLocation {
 		distance := common.Distance(b.Lat, b.Long, terminal.Lat, terminal.Long)
-		estimate := int(distance/b.Speed) * 3600
+		estimate := int(distance/b.Speed)
 		busInfo = append(busInfo, dto.BusInfo{
 			ID:       b.ID,
 			Number:   b.Number,
