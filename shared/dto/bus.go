@@ -24,7 +24,7 @@ const (
 	CLIENT WSType = "client"
 	DRIVER WSType = "driver"
 
-	DEFAULTBUSSPEED = 3.0
+	DEFAULTBUSSPEED = 1.0
 )
 
 type (
