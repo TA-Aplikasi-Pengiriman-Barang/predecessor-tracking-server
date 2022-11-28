@@ -151,9 +151,9 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		return data, err
 	}
 
-	if query.Experimental == "true" {
-		return v.storeBusLocationExperimental(data, query)
-	}
+	// if query.Experimental == "true" {
+	// 	return v.storeBusLocationExperimental(data, query)
+	// }
 
 	username, err := common.ExtractTokenData(query.Token, v.shared.Env)
 	if err != nil {
@@ -215,14 +215,15 @@ func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
 
 	for _, b := range busLatestLocation {
 		distance := common.Distance(b.Lat, b.Long, terminal.Lat, terminal.Long)
-		estimate := int(distance/b.Speed)
+		estimate := (distance / (b.GetBusSpeed() * 3.6)) * 60
+		v.shared.Logger.Infof("speed: %f, distance: %f, estimate: %f", b.Speed, distance, estimate)
 		busInfo = append(busInfo, dto.BusInfo{
 			ID:       b.ID,
 			Number:   b.Number,
 			Plate:    b.Plate,
 			Status:   b.Status,
 			Route:    b.Route,
-			Estimate: estimate,
+			Estimate: 0,
 		})
 	}
 

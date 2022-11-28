@@ -23,6 +23,8 @@ const (
 
 	CLIENT WSType = "client"
 	DRIVER WSType = "driver"
+
+	DEFAULTBUSSPEED = 3.0
 )
 
 type (
@@ -217,4 +219,11 @@ func (b *Bus) ToEditBusResponnse() EditBusResponse {
 		Route:    b.Route,
 		IsActive: b.IsActive,
 	}
+}
+
+func (t *TrackLocationResponse) GetBusSpeed()float64{
+	if t.Speed < 0  {
+		return DEFAULTBUSSPEED
+	}
+	return t.Speed
 }
