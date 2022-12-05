@@ -19,6 +19,9 @@ type Holder struct {
 	Terminal    terminal.Controller
 }
 
+/**
+ * Register all controller module to infrastructure holder
+ */
 func Register(container *dig.Container) error {
 	if err := container.Provide(healthcheck.NewController); err != nil {
 		return errors.Wrap(err, "failed to provide healthcheck controller")
@@ -39,6 +42,9 @@ func Register(container *dig.Container) error {
 	return nil
 }
 
+/**
+ * Init routes for every controller
+ */
 func Routes(app *fiber.App, controller Holder) {
 	controller.Healthcheck.Routes(app)
 	controller.Bus.Routes(app)

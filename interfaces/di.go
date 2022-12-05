@@ -18,6 +18,9 @@ type Holder struct {
 	TerminalViewsService   terminal.ViewService
 }
 
+/**
+ * Register all module to interfaces holder
+ */
 func Register(container *dig.Container) error {
 	if err := container.Provide(healthcheck.NewViewService); err != nil {
 		return errors.Wrap(err, "failed to provide healthcheck view service")

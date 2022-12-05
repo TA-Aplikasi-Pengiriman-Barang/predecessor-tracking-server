@@ -181,6 +181,13 @@ func (c *Controller) busInfo(ctx *fiber.Ctx) error {
 	return common.DoCommonSuccessResponse(ctx, response)
 }
 
+/**
+ * Track bus location using websocket
+ * @param type to differentiate between driver and client
+ * @param token authentication token used only if type is driver
+ * @param experimental toggler for experimnetal tracking using bot
+ * @param expeerimentalId bus identifier for bot
+ */
 func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 	defer func() {
 		ctx.Close()

@@ -29,6 +29,9 @@ type (
 	}
 )
 
+/**
+ * Create new bust for each driver
+ */
 func (v *viewService) CreateBusEntry(data dto.CreateBusDto) (dto.CreateBusResponse, error) {
 	var (
 		bus      *dto.Bus
@@ -63,6 +66,9 @@ func (v *viewService) CreateBusEntry(data dto.CreateBusDto) (dto.CreateBusRespon
 	return response, nil
 }
 
+/**
+ * Login driver account, unique for each bus
+ */
 func (v *viewService) LoginDriver(data dto.DriverLoginDto) (dto.DriverLoginResponse, error) {
 	var (
 		bus      = &dto.Bus{}
@@ -95,6 +101,9 @@ func (v *viewService) LoginDriver(data dto.DriverLoginDto) (dto.DriverLoginRespo
 	return response, nil
 }
 
+/**
+ * Delete bus entry
+ */
 func (v *viewService) DeleteBus(id string) error {
 	err := v.application.BusService.Delete(id)
 	if err != nil {
@@ -104,6 +113,10 @@ func (v *viewService) DeleteBus(id string) error {
 	return nil
 }
 
+/**
+ * Edit bus data based on the payload send
+ * Bus identified by the token data send
+ */
 func (v *viewService) EditBus(data dto.EditBusDto, id string, token string) (dto.EditBusResponse, error) {
 	var (
 		bus      = &dto.Bus{}
@@ -140,6 +153,11 @@ func (v *viewService) EditBus(data dto.EditBusDto, id string, token string) (dto
 	return response, nil
 }
 
+/**
+ * Stote bus latest location received from web socket
+ * * if the request is using experimental tracking, store it in local map
+ * Bus location store asynchronously
+ */
 func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.Conn) (dto.BusLocationMessage, error) {
 	var (
 		data = dto.BusLocationMessage{}
@@ -183,6 +201,10 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 	return data, nil
 }
 
+/**
+ * Send the latest bus location record to websocket client
+ * * if using experimental tracking, get data from local map instead
+ */
 func (v *viewService) StreamBusLocation(query dto.BusLocationQuery) []dto.TrackLocationResponse {
 	var (
 		response []dto.TrackLocationResponse
@@ -197,6 +219,11 @@ func (v *viewService) StreamBusLocation(query dto.BusLocationQuery) []dto.TrackL
 	return response
 }
 
+/**
+ * Get bus estimation time to a terminal
+ * Get latest bus location data and then calculate the estimation
+ * Sort the estimation from the fastest to slowest
+ */
 func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
 	var (
 		res               dto.BusInfoResponse
@@ -236,6 +263,9 @@ func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
 	return res, nil
 }
 
+/**
+ * Get latest location for each bus
+ */
 func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 	var (
 		bus      = []dto.Bus{}
@@ -278,11 +308,17 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 	return response
 }
 
+/**
+ * Store bus location using sync.map
+ */
 func (v *viewService) storeBusLocationExperimental(data dto.BusLocationMessage, query dto.BusLocationQuery) (dto.BusLocationMessage, error) {
 	dto.ExperimentalBusLocation.Store(query.ExperminetalID, data)
 	return data, nil
 }
 
+/**
+ * Get all latest bus location from sync.map
+ */
 func (v *viewService) streamBusLocationExperimental() []dto.TrackLocationResponse {
 	var res = make([]dto.TrackLocationResponse, 0)
 	dto.ExperimentalBusLocation.Range(func(key, value interface{}) bool {

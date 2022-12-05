@@ -20,6 +20,10 @@ type (
 	}
 )
 
+/**
+ * Get terminal details
+ * Details included related place and corresponding route
+ */
 func (v *viewService) GetTerminalInfo(id string) (dto.GetTerminalInfoResponse, error) {
 	var (
 		response           dto.GetTerminalInfoResponse
@@ -44,6 +48,9 @@ func (v *viewService) GetTerminalInfo(id string) (dto.GetTerminalInfoResponse, e
 	return response, nil
 }
 
+/**
+ * Get all terminal sorted by nearest to user
+ */
 func (v *viewService) GetAllTerminalSorted(data dto.GetAllTerminalDto) (dto.GetAllTerminalResponse, error) {
 	var (
 		res                dto.GetAllTerminalResponse
@@ -79,6 +86,10 @@ func (v *viewService) GetAllTerminalSorted(data dto.GetAllTerminalDto) (dto.GetA
 	return res, nil
 }
 
+/**
+ * Get two closes terminal to user
+ * ! Deprecated
+ */
 func (v *viewService) GetTwoClosesTerminal(data dto.GetAllTerminalDto) (dto.GetAllTerminalResponse, error) {
 	resp, err := v.GetAllTerminalSorted(data)
 	if err != nil {
