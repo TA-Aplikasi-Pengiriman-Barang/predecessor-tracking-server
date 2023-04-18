@@ -3,6 +3,8 @@ package dto
 import (
 	"sync"
 	"time"
+
+	"github.com/gofiber/websocket/v2"
 )
 
 var (

@@ -8,6 +8,7 @@ import (
 	"tracking-server/shared/common"
 	"tracking-server/shared/dto"
 
+	"github.com/gofiber/websocket/v2"
 	"golang.org/x/crypto/bcrypt"
 )
 
