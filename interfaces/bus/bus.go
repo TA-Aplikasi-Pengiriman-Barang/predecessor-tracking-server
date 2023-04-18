@@ -3,15 +3,15 @@ package bus
 import (
 	"sort"
 	"strconv"
-	"time"
 	"tracking-server/application"
 	"tracking-server/shared"
 	"tracking-server/shared/common"
 	"tracking-server/shared/dto"
 
-	"github.com/gofiber/websocket/v2"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var LatestLocation = make(map[uint]uint)
 
 type (
 	ViewService interface {
@@ -188,14 +188,14 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		BusID:     bus.ID,
 		Lat:       data.Lat,
 		Long:      data.Long,
-		Timestamp: time.Now(),
+		Timestamp: query.Timestamp,
 		Speed:     data.Speed,
 		Heading:   data.Heading,
 	}
 
 	go func() {
 		v.application.BusService.InsertBusLocation(&location)
-		v.shared.Logger.Infof("insert bus location, data: %s", location)
+		//v.shared.Logger.Infof("insert bus location, data: %s", location)
 	}()
 
 	return data, nil
@@ -301,6 +301,19 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 		parsedData.Long = location.Long
 		parsedData.Speed = location.Speed
 		parsedData.Heading = location.Heading
+		parsedData.Timestamp = location.Timestamp
+
+		if v, ok := LatestLocation[d.ID]; ok {
+			if v == location.ID {
+				parsedData.IsNewLocation = false
+			} else {
+				parsedData.IsNewLocation = true
+			}
+			LatestLocation[d.ID] = location.ID
+		} else {
+			parsedData.IsNewLocation = true
+			LatestLocation[d.ID] = location.ID
+		}
 
 		response = append(response, parsedData)
 	}

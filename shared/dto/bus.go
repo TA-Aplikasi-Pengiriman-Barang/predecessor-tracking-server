@@ -3,8 +3,6 @@ package dto
 import (
 	"sync"
 	"time"
-
-	"github.com/gofiber/websocket/v2"
 )
 
 var (
@@ -117,6 +115,7 @@ type (
 		Token          string
 		Experimental   string
 		ExperminetalID string
+		Timestamp      time.Time
 	}
 
 	BusLocationMessage struct {
@@ -127,16 +126,18 @@ type (
 	}
 
 	TrackLocationResponse struct {
-		ID       uint      `json:"id"`
-		Number   int       `json:"number"`
-		Plate    string    `json:"plate"`
-		Status   BusStatus `json:"status"`
-		Route    Route     `json:"route"`
-		IsActive bool      `json:"isActive"`
-		Long     float64   `json:"long"`
-		Lat      float64   `json:"lat"`
-		Speed    float64   `json:"speed"`
-		Heading  float64   `json:"heading"`
+		ID            uint      `json:"id"`
+		Number        int       `json:"number"`
+		Plate         string    `json:"plate"`
+		Status        BusStatus `json:"status"`
+		Route         Route     `json:"route"`
+		IsActive      bool      `json:"isActive"`
+		Long          float64   `json:"long"`
+		Lat           float64   `json:"lat"`
+		Speed         float64   `json:"speed"`
+		Heading       float64   `json:"heading"`
+		Timestamp     time.Time
+		IsNewLocation bool
 	}
 	BusInfo struct {
 		ID       uint      `json:"id"`

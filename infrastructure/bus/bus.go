@@ -1,15 +1,14 @@
 package bus
 
 import (
+	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/websocket/v2"
 	"time"
 	"tracking-server/interfaces"
 	"tracking-server/shared"
 	"tracking-server/shared/dto"
 
 	"tracking-server/shared/common"
-
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/websocket/v2"
 )
 
 type Controller struct {
@@ -203,6 +202,8 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 	c.Shared.Logger.Infof("stream bus location, query: %s", query)
 
 	for {
+		query.Timestamp = time.Now()
+
 		if query.Type == string(dto.DRIVER) {
 			data, err := c.Interfaces.BusViewService.TrackBusLocation(query, ctx)
 			if err != nil {
@@ -211,6 +212,12 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 			ctx.WriteJSON(data)
 		} else {
 			busLocation := c.Interfaces.BusViewService.StreamBusLocation(query)
+			for _, v := range busLocation {
+				if v.IsNewLocation {
+					c.Shared.Logger.Infof("latency %s", time.Now().Sub(v.Timestamp))
+				}
+			}
+
 			ctx.WriteJSON(busLocation)
 			time.Sleep(1 * time.Second)
 		}
