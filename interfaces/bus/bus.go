@@ -1,8 +1,11 @@
 package bus
 
 import (
+	"encoding/json"
+	"log"
 	"sort"
 	"strconv"
+	"sync"
 	"tracking-server/application"
 	"tracking-server/shared"
 	"tracking-server/shared/common"
@@ -12,7 +15,15 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var LatestLocation = make(map[uint]uint)
+type LatestLocation struct {
+	sync sync.Mutex
+	loc  map[uint]uint
+}
+
+var LatestLocationInstance = LatestLocation{
+	sync: sync.Mutex{},
+	loc:  make(map[uint]uint),
+}
 
 type (
 	ViewService interface {
@@ -165,8 +176,16 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		bus  = dto.Bus{}
 	)
 
-	if err := c.ReadJSON(&data); err != nil {
-		v.shared.Logger.Errorf("error when receiving websocket message, err: %s", err.Error())
+	messageType, p, err := c.ReadMessage()
+	if err != nil {
+		log.Println(err)
+	}
+	if err := c.WriteMessage(messageType, p); err != nil {
+		log.Println(err)
+	}
+
+	err = json.Unmarshal(p, &data)
+	if err != nil {
 		return data, err
 	}
 
@@ -304,17 +323,19 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 		parsedData.Heading = location.Heading
 		parsedData.Timestamp = location.Timestamp
 
-		if v, ok := LatestLocation[d.ID]; ok {
+		LatestLocationInstance.sync.Lock()
+		if v, ok := LatestLocationInstance.loc[d.ID]; ok {
 			if v == location.ID {
 				parsedData.IsNewLocation = false
 			} else {
 				parsedData.IsNewLocation = true
 			}
-			LatestLocation[d.ID] = location.ID
+			LatestLocationInstance.loc[d.ID] = location.ID
 		} else {
 			parsedData.IsNewLocation = true
-			LatestLocation[d.ID] = location.ID
+			LatestLocationInstance.loc[d.ID] = location.ID
 		}
+		LatestLocationInstance.sync.Unlock()
 
 		response = append(response, parsedData)
 	}
