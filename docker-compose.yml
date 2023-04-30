@@ -14,7 +14,7 @@ services:
     networks:
       - tracking
   db:
-    image: postgres:13.3-alpine
+    image: postgres:latest
     volumes:
       - db-data:/var/lib/postgresql/data
     restart: always

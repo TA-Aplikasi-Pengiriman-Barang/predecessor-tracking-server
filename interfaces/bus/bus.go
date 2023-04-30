@@ -1,9 +1,11 @@
 package bus
 
 import (
+	"encoding/json"
+	"log"
 	"sort"
 	"strconv"
-	"time"
+	"sync"
 	"tracking-server/application"
 	"tracking-server/shared"
 	"tracking-server/shared/common"
@@ -12,6 +14,16 @@ import (
 	"github.com/gofiber/websocket/v2"
 	"golang.org/x/crypto/bcrypt"
 )
+
+type LatestLocation struct {
+	sync sync.Mutex
+	loc  map[uint]uint
+}
+
+var LatestLocationInstance = LatestLocation{
+	sync: sync.Mutex{},
+	loc:  make(map[uint]uint),
+}
 
 type (
 	ViewService interface {
@@ -164,8 +176,16 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		bus  = dto.Bus{}
 	)
 
-	if err := c.ReadJSON(&data); err != nil {
-		v.shared.Logger.Errorf("error when receiving websocket message, err: %s", err.Error())
+	messageType, p, err := c.ReadMessage()
+	if err != nil {
+		log.Println(err)
+	}
+	if err := c.WriteMessage(messageType, p); err != nil {
+		log.Println(err)
+	}
+
+	err = json.Unmarshal(p, &data)
+	if err != nil {
 		return data, err
 	}
 
@@ -188,14 +208,14 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		BusID:     bus.ID,
 		Lat:       data.Lat,
 		Long:      data.Long,
-		Timestamp: time.Now(),
+		Timestamp: query.Timestamp,
 		Speed:     data.Speed,
 		Heading:   data.Heading,
 	}
 
 	go func() {
 		v.application.BusService.InsertBusLocation(&location)
-		v.shared.Logger.Infof("insert bus location, data: %s", location)
+		//v.shared.Logger.Infof("insert bus location, data: %s", location)
 	}()
 
 	return data, nil
@@ -301,6 +321,21 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 		parsedData.Long = location.Long
 		parsedData.Speed = location.Speed
 		parsedData.Heading = location.Heading
+		parsedData.Timestamp = location.Timestamp
+
+		LatestLocationInstance.sync.Lock()
+		if v, ok := LatestLocationInstance.loc[d.ID]; ok {
+			if v == location.ID {
+				parsedData.IsNewLocation = false
+			} else {
+				parsedData.IsNewLocation = true
+			}
+			LatestLocationInstance.loc[d.ID] = location.ID
+		} else {
+			parsedData.IsNewLocation = true
+			LatestLocationInstance.loc[d.ID] = location.ID
+		}
+		LatestLocationInstance.sync.Unlock()
 
 		response = append(response, parsedData)
 	}

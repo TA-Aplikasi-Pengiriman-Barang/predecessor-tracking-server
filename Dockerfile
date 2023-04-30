@@ -1,4 +1,4 @@
-FROM golang:1.19 AS Production
+FROM golang:1.19-alpine AS Production
 WORKDIR /app
 COPY go.mod .env ./
 RUN go mod tidy
