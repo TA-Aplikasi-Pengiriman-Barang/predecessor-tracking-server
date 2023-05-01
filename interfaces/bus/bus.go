@@ -324,16 +324,11 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 		parsedData.Timestamp = location.Timestamp
 
 		LatestLocationInstance.sync.Lock()
-		if v, ok := LatestLocationInstance.loc[d.ID]; ok {
-			if v == location.ID {
-				parsedData.IsNewLocation = false
-			} else {
-				parsedData.IsNewLocation = true
-			}
-			LatestLocationInstance.loc[d.ID] = location.ID
+		if _, ok := LatestLocationInstance.loc[location.ID]; ok {
+			parsedData.IsNewLocation = false
 		} else {
 			parsedData.IsNewLocation = true
-			LatestLocationInstance.loc[d.ID] = location.ID
+			LatestLocationInstance.loc[location.ID] = location.ID
 		}
 		LatestLocationInstance.sync.Unlock()
 
