@@ -6,6 +6,7 @@ import (
 	"sort"
 	"strconv"
 	"sync"
+	"time"
 	"tracking-server/application"
 	"tracking-server/shared"
 	"tracking-server/shared/common"
@@ -18,11 +19,6 @@ import (
 type LatestLocation struct {
 	sync sync.Mutex
 	loc  map[uint]uint
-}
-
-var LatestLocationInstance = LatestLocation{
-	sync: sync.Mutex{},
-	loc:  make(map[uint]uint),
 }
 
 type (
@@ -177,6 +173,7 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 	)
 
 	messageType, p, err := c.ReadMessage()
+	query.Timestamp = time.Now()
 	if err != nil {
 		log.Println(err)
 	}
@@ -265,7 +262,7 @@ func (v *viewService) BusInfo(id string) (dto.BusInfoResponse, error) {
 		estimate := (distance / (b.GetBusSpeed() * 3.6)) * 60
 		v.shared.Logger.Infof("speed: %f, distance: %f, estimate: %f", b.Speed, distance, estimate)
 		busInfo = append(busInfo, dto.BusInfo{
-			ID:       b.ID,
+			ID:       b.BusID,
 			Number:   b.Number,
 			Plate:    b.Plate,
 			Status:   b.Status,
@@ -304,7 +301,7 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 		}
 
 		parsedData := dto.TrackLocationResponse{
-			ID:       d.ID,
+			BusID:    d.ID,
 			Number:   d.Number,
 			Status:   d.Status,
 			Route:    d.Route,
@@ -317,20 +314,12 @@ func (v *viewService) getBusLatestLocation() []dto.TrackLocationResponse {
 			v.shared.Logger.Errorf("error when finding bus latest location, err: %s", err.Error())
 			continue
 		}
+		parsedData.ID = location.ID
 		parsedData.Lat = location.Lat
 		parsedData.Long = location.Long
 		parsedData.Speed = location.Speed
 		parsedData.Heading = location.Heading
 		parsedData.Timestamp = location.Timestamp
-
-		LatestLocationInstance.sync.Lock()
-		if _, ok := LatestLocationInstance.loc[location.ID]; ok {
-			parsedData.IsNewLocation = false
-		} else {
-			parsedData.IsNewLocation = true
-			LatestLocationInstance.loc[location.ID] = location.ID
-		}
-		LatestLocationInstance.sync.Unlock()
 
 		response = append(response, parsedData)
 	}

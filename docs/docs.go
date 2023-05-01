@@ -66,7 +66,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Terminal ID",
+                        "description": "Terminal BusID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -132,7 +132,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bus ID",
+                        "description": "Bus BusID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -178,7 +178,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "Bus ID",
+                        "description": "Bus BusID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -284,7 +284,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "News ID",
+                        "description": "News BusID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -314,7 +314,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "News ID",
+                        "description": "News BusID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -353,7 +353,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "News ID",
+                        "description": "News BusID",
                         "name": "id",
                         "in": "path",
                         "required": true
@@ -446,7 +446,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "terminal ID",
+                        "description": "terminal BusID",
                         "name": "id",
                         "in": "path",
                         "required": true

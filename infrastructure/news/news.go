@@ -80,7 +80,7 @@ func (c *Controller) getAll(ctx *fiber.Ctx) error {
 // @Tags News
 // @Summary Get news detail
 // @Description Put all mandatory parameter
-// @Param id path string true "News ID"
+// @Param id path string true "News BusID"
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} dto.News
@@ -103,7 +103,7 @@ func (c *Controller) get(ctx *fiber.Ctx) error {
 // @Tags News
 // @Summary Delete News
 // @Description Put all mandatory parameter
-// @Param id path string true "News ID"
+// @Param id path string true "News BusID"
 // @Accept  json
 // @Produce  json
 // @Router /news/{id} [delete]
@@ -124,7 +124,7 @@ func (c *Controller) delete(ctx *fiber.Ctx) error {
 // @Tags News
 // @Summary Edit news
 // @Description Put all mandatory parameter
-// @Param id path string true "News ID"
+// @Param id path string true "News BusID"
 // @Param EditNewsDto body dto.EditNewsDto true "EditNewsDto"
 // @Accept  json
 // @Produce  json

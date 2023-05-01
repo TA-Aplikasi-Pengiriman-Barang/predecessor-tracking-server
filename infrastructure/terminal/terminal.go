@@ -25,7 +25,7 @@ func (c *Controller) Routes(app *fiber.App) {
 // @Tags Terminal
 // @Summary Get terminal info
 // @Description Put all mandatory parameter
-// @Param id path string true "terminal ID"
+// @Param id path string true "terminal BusID"
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} dto.GetTerminalInfoResponse

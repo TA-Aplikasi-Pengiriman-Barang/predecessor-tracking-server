@@ -99,7 +99,7 @@ func (c *Controller) login(ctx *fiber.Ctx) error {
 // @Tags Bus
 // @Summary Delete bus
 // @Description Put all mandatory parameter
-// @Param id path string true "Bus ID"
+// @Param id path string true "Bus BusID"
 // @Accept  json
 // @Produce  json
 // @Router /bus/{id} [delete]
@@ -120,7 +120,7 @@ func (c *Controller) delete(ctx *fiber.Ctx) error {
 // @Tags Bus
 // @Summary Edit Bus
 // @Description Put all mandatory parameter
-// @Param id path string true "Bus ID"
+// @Param id path string true "Bus BusID"
 // @Param auth header string true "token"
 // @Param EditBusDto body dto.EditBusDto true "EditBusDto"
 // @Accept  json
@@ -157,7 +157,7 @@ func (c *Controller) edit(ctx *fiber.Ctx) error {
 // @Tags Bus
 // @Summary Get bus estimation
 // @Description Put all mandatory parameter
-// @Param id path string true "Terminal ID"
+// @Param id path string true "Terminal BusID"
 // @Accept  json
 // @Produce  json
 // @Success 200 {object} dto.BusInfoResponse
@@ -204,8 +204,6 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 	//2c.Shared.Logger.Infof("stream bus location, query: %s", query)
 
 	for {
-		query.Timestamp = time.Now()
-
 		if query.Type == string(dto.DRIVER) {
 			data, err := c.Interfaces.BusViewService.TrackBusLocation(query, ctx)
 			if err != nil {
@@ -214,11 +212,6 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 			ctx.WriteJSON(data)
 		} else {
 			busLocation := c.Interfaces.BusViewService.StreamBusLocation(query)
-			for _, v := range busLocation {
-				if v.IsNewLocation {
-					c.Shared.Logger.Infof("latency %s", time.Now().Sub(v.Timestamp))
-				}
-			}
 
 			ctx.WriteJSON(busLocation)
 			time.Sleep(1 * time.Second)
