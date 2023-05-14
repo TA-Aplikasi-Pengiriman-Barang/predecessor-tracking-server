@@ -2,7 +2,6 @@ package depedencies
 
 import (
 	"fmt"
-	"gorm.io/gorm/logger"
 	"time"
 	"tracking-server/shared/config"
 	"tracking-server/shared/dto"
@@ -22,9 +21,7 @@ func NewDatabase(env *config.EnvConfig, log *logrus.Logger) *gorm.DB {
 		env.DBPort,
 	)
 
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Silent),
-	})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 
 	if err != nil {
 		log.Errorf("failed to connect to database, with error: %s", err.Error())
@@ -64,6 +61,6 @@ func seedDatabase(db *gorm.DB) {
 func setConnectionConfiguration(db *gorm.DB) {
 	postgresDb, _ := db.DB()
 	postgresDb.SetMaxIdleConns(10)
-	postgresDb.SetMaxOpenConns(100)
+	postgresDb.SetMaxOpenConns(2000)
 	postgresDb.SetConnMaxLifetime(time.Hour)
 }

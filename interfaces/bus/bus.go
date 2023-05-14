@@ -1,8 +1,6 @@
 package bus
 
 import (
-	"encoding/json"
-	"log"
 	"sort"
 	"strconv"
 	"sync"
@@ -172,19 +170,11 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 		bus  = dto.Bus{}
 	)
 
-	messageType, p, err := c.ReadMessage()
-	query.Timestamp = time.Now()
-	if err != nil {
-		log.Println(err)
-	}
-	if err := c.WriteMessage(messageType, p); err != nil {
-		log.Println(err)
-	}
-
-	err = json.Unmarshal(p, &data)
-	if err != nil {
+	if err := c.ReadJSON(&data); err != nil {
+		v.shared.Logger.Errorf("error when receiving websocket message, err: %s", err.Error())
 		return data, err
 	}
+	query.Timestamp = time.Now()
 
 	if query.Experimental == "true" {
 		return v.storeBusLocationExperimental(data, query)
@@ -212,7 +202,7 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 
 	go func() {
 		v.application.BusService.InsertBusLocation(&location)
-		//v.shared.Logger.Infof("insert bus location, data: %s", location)
+		v.shared.Logger.Infof("insert bus location, data: %s", location)
 	}()
 
 	return data, nil

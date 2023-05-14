@@ -188,9 +188,7 @@ func (c *Controller) busInfo(ctx *fiber.Ctx) error {
  * @param expeerimentalId bus identifier for bot
  */
 func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
-	defer func() {
-		ctx.Close()
-	}()
+	defer ctx.Close()
 
 	token := ctx.Query("token", "")
 
@@ -209,11 +207,18 @@ func (c *Controller) trackBusLocation(ctx *websocket.Conn) {
 			if err != nil {
 				return
 			}
-			ctx.WriteJSON(data)
+
+			err = ctx.WriteJSON(data)
+			if err != nil {
+				return
+			}
 		} else {
 			busLocation := c.Interfaces.BusViewService.StreamBusLocation(query)
 
-			ctx.WriteJSON(busLocation)
+			err := ctx.WriteJSON(busLocation)
+			if err != nil {
+				return
+			}
 			time.Sleep(1 * time.Second)
 		}
 	}

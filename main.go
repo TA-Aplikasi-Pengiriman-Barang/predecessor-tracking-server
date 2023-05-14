@@ -20,9 +20,6 @@ func main() {
 	container := di.Container
 
 	err := container.Invoke(func(http *fiber.App, env *config.EnvConfig, holder infrastructure.Holder) error {
-		http = fiber.New(fiber.Config{
-			DisableStartupMessage: true,
-		})
 		http.Use(cors.New())
 		infrastructure.Routes(http, holder)
 		if env.ENV == "PROD" {
