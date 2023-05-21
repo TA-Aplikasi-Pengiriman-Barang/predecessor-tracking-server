@@ -201,8 +201,11 @@ func (v *viewService) TrackBusLocation(query dto.BusLocationQuery, c *websocket.
 	}
 
 	go func() {
-		v.application.BusService.InsertBusLocation(&location)
-		v.shared.Logger.Infof("insert bus location, data: %s", location)
+		err := v.application.BusService.InsertBusLocation(&location)
+		if err != nil {
+			v.shared.Logger.Errorf("error when inserting data to PSQL: %v", err.Error())
+		}
+		v.shared.Logger.Infof("insert bus location, data: %v", location)
 	}()
 
 	return data, nil
